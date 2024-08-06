@@ -26,7 +26,7 @@ export default function TimerChallenge({ difficulty, time }: TimerChallengeInfo)
         timer.current = setTimeout(() => {
             // setTimerExpired(true);
             setTimerStarted(false);
-            dialog.current && dialog.current.showModal();
+            dialog.current && dialog.current.open();
             stoppedInTime = false;
         }, time * 1000);
     }
@@ -34,7 +34,7 @@ export default function TimerChallenge({ difficulty, time }: TimerChallengeInfo)
     function handleStop() {
         setTimerStarted(false);
         stoppedInTime = true;
-        dialog.current && dialog.current.showModal();
+        dialog.current && dialog.current.open();
         timer.current !== null && clearTimeout(timer.current);
     }
 
@@ -48,7 +48,7 @@ export default function TimerChallenge({ difficulty, time }: TimerChallengeInfo)
 
     return (
         <>
-            <ResultModal result={stoppedInTime ? 'Won' : 'Lost'} score={0} ref={dialog} />
+            <ResultModal result={stoppedInTime ? 'Won' : 'Lost'} score={0} ref={dialog} targetTime={time} />
 
             <section className='challenge'>
                 <h2>{difficulty}</h2>
