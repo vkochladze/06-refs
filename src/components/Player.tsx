@@ -12,7 +12,7 @@ const Player = forwardRef<HTMLInputElement, PlayerInfo>(function Player({ handle
   return (
 
     <section id="player">
-      <h2>Welcome {playerName}</h2>
+      <h2>Welcome <em>{playerName}</em></h2>
       <form onSubmit={handleClick}>
         <input type="text" ref={playerNameFromInputRef} />
         <button type="submit">Set Name</button>

@@ -3,10 +3,8 @@ import TimerChallenge from './components/TimerChallenge/TimerChallenge';
 import { useState, useRef } from 'react';
 
 function App() {
-
   const [playerName, setPlayerName] = useState('unknown entity');
   const playerNameFromInput = useRef<HTMLInputElement>(null);
-
 
   function handleClick(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -24,7 +22,6 @@ function App() {
         <TimerChallenge difficulty='Not Easy' time={5} playerName={playerName} />
         <TimerChallenge difficulty='Getting Tough' time={10} playerName={playerName} />
         <TimerChallenge difficulty='Pros Only' time={15} playerName={playerName} />
-
       </div>
     </>
   );
