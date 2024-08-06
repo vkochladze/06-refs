@@ -1,3 +1,4 @@
+import ResultModal from '../ResultModal/ResultModal';
 import './TimerChallenge.css'
 import { useState, useRef } from 'react'
 
@@ -6,39 +7,55 @@ interface TimerChallengeInfo {
     time: number;
 }
 
+let stoppedInTime: boolean | null = null;
+
 export default function TimerChallenge({ difficulty, time }: TimerChallengeInfo) {
 
-    const [timerRunning, setTimerRunning] = useState<null | boolean>(null);
-    const timer = useRef<HTMLParagraphElement>(null);
+    // const [timerExpired, setTimerExpired] = useState(false);
+    const [timerStarted, setTimerStarted] = useState(false);
 
-    let timerTimeout;
+    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const dialog = useRef<HTMLDialogElement>();
 
     const second = time > 1 ? 'seconds' : 'second';
 
-    function handleClick() {
-        // timerRunning === null ? setTimerRunning(true) : (setTimerRunning((prev) => !prev) && clearTimeout(timerTimeout));
+    function handleStart() {
+        setTimerStarted(true)
+        // setTimerExpired(false);
 
-        if (timerRunning === null) {
-            setTimerRunning(true);
-        } else {
-            setTimerRunning((prev) => !prev);
-            clearTimeout(timerTimeout);
-        }
-
-        timerTimeout = setTimeout(() => {
-            setTimerRunning((prev) => !prev);
-            console.log(timerRunning);
-
+        timer.current = setTimeout(() => {
+            // setTimerExpired(true);
+            setTimerStarted(false);
+            dialog.current && dialog.current.showModal();
+            stoppedInTime = false;
         }, time * 1000);
     }
 
+    function handleStop() {
+        setTimerStarted(false);
+        stoppedInTime = true;
+        dialog.current && dialog.current.showModal();
+        timer.current !== null && clearTimeout(timer.current);
+    }
+
+    // function winningCondition() {
+    //     if (stoppedInTime) {
+    //         return <ResultModal result={'Won'} score={0} ref={dialog} />
+    //     } else if (stoppedInTime === false) {
+    //         return <ResultModal result={'Lost'} score={0} ref={dialog} />
+    //     } else if (stoppedInTime === null) { return null }
+    // }
+
     return (
-        <section className='challenge'>
-            <h2>{difficulty}</h2>
-            {timerRunning === false && <p>You Lost!</p>}
-            <p className='challenge-time' ref={timer}>{time} {second}</p>
-            <button onClick={handleClick}>{timerRunning ? 'Stop' : 'Start'} Challenge</button>
-            <p className={timerRunning ? 'active' : undefined}>{timerRunning ? 'Timer running...' : 'Timer stopped'}</p>
-        </section>
+        <>
+            <ResultModal result={stoppedInTime ? 'Won' : 'Lost'} score={0} ref={dialog} />
+
+            <section className='challenge'>
+                <h2>{difficulty}</h2>
+                <p className='challenge-time'>{time} {second}</p>
+                <button onClick={timerStarted ? handleStop : handleStart}>{timerStarted ? 'Stop' : 'Start'} Challenge</button>
+                <p className={timerStarted ? 'active' : undefined}>{timerStarted ? 'Timer running...' : 'Timer stopped'}</p>
+            </section>
+        </>
     )
 }
