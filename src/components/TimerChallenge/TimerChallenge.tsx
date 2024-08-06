@@ -5,56 +5,57 @@ import { useState, useRef } from 'react'
 interface TimerChallengeInfo {
     difficulty: string,
     time: number;
+    playerName: string
 }
 
-let stoppedInTime: boolean | null = null;
+interface ResultModalHandle {
+    open: () => void;
+}
 
-export default function TimerChallenge({ difficulty, time }: TimerChallengeInfo) {
+export default function TimerChallenge({ difficulty, time, playerName }: TimerChallengeInfo) {
 
-    // const [timerExpired, setTimerExpired] = useState(false);
-    const [timerStarted, setTimerStarted] = useState(false);
+    const [timeRemaining, setTimeRemaining] = useState(time * 1000);
 
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const dialog = useRef<HTMLDialogElement>();
+    const dialog = useRef<ResultModalHandle | null>(null);
+
+    let timerActive = timeRemaining > 0 && timeRemaining < time * 1000
 
     const second = time > 1 ? 'seconds' : 'second';
 
     function handleStart() {
-        setTimerStarted(true)
-        // setTimerExpired(false);
+        timer.current = setInterval(() => {
+            setTimeRemaining(prevTimeRemaining => prevTimeRemaining - 10)
+        }, 10);
+    }
 
-        timer.current = setTimeout(() => {
-            // setTimerExpired(true);
-            setTimerStarted(false);
-            dialog.current && dialog.current.open();
-            stoppedInTime = false;
-        }, time * 1000);
+    if (timeRemaining <= 0) {
+        timerActive = false;
+        timer.current !== null && clearInterval(timer.current);
+        dialog.current?.open();
+    }
+
+    function handleReset() {
+        setTimeRemaining(time * 1000)
+
     }
 
     function handleStop() {
-        setTimerStarted(false);
-        stoppedInTime = true;
-        dialog.current && dialog.current.open();
-        timer.current !== null && clearTimeout(timer.current);
+        timerActive = false;
+        dialog.current?.open();
+        timer.current !== null && clearInterval(timer.current);
     }
 
-    // function winningCondition() {
-    //     if (stoppedInTime) {
-    //         return <ResultModal result={'Won'} score={0} ref={dialog} />
-    //     } else if (stoppedInTime === false) {
-    //         return <ResultModal result={'Lost'} score={0} ref={dialog} />
-    //     } else if (stoppedInTime === null) { return null }
-    // }
 
     return (
         <>
-            <ResultModal result={stoppedInTime ? 'Won' : 'Lost'} score={0} ref={dialog} targetTime={time} />
+            <ResultModal remainingTime={timeRemaining} ref={dialog} targetTime={time} reset={handleReset} playerName={playerName} />
 
             <section className='challenge'>
                 <h2>{difficulty}</h2>
                 <p className='challenge-time'>{time} {second}</p>
-                <button onClick={timerStarted ? handleStop : handleStart}>{timerStarted ? 'Stop' : 'Start'} Challenge</button>
-                <p className={timerStarted ? 'active' : undefined}>{timerStarted ? 'Timer running...' : 'Timer stopped'}</p>
+                <button onClick={timerActive ? handleStop : handleStart}>{timerActive ? 'Stop' : 'Start'} Challenge</button>
+                <p className={timerActive ? 'active' : undefined}>{timerActive ? 'Timer running...' : 'Timer stopped'}</p>
             </section>
         </>
     )

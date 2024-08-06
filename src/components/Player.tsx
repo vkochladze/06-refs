@@ -1,27 +1,24 @@
-import { useState, useRef } from "react";
+import { forwardRef } from "react";
+
+interface PlayerInfo {
+  handleClick: (e: React.SyntheticEvent<HTMLFormElement>) => void;
+  playerName: string;
+}
+
+const Player = forwardRef<HTMLInputElement, PlayerInfo>(function Player({ handleClick, playerName }, playerNameFromInputRef) {
 
 
-export default function Player() {
-
-  const [playerName, setPlayerName] = useState('unknown entity');
-  const playerNameFromInput = useRef<HTMLInputElement>(null);
-
-  function handleClick(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (playerNameFromInput.current) {
-      setPlayerName(playerNameFromInput.current.value);
-    }
-    e.currentTarget.reset();
-  }
 
   return (
 
     <section id="player">
       <h2>Welcome {playerName}</h2>
       <form onSubmit={handleClick}>
-        <input type="text" ref={playerNameFromInput} />
+        <input type="text" ref={playerNameFromInputRef} />
         <button type="submit">Set Name</button>
       </form>
     </section >
   );
-}
+})
+
+export default Player;
